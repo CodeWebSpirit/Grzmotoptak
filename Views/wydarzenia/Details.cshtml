@@ -1,0 +1,66 @@
+﻿@using System.Security.Claims
+@model Grzmotoptak.Models.wydarzenia
+
+@{
+    ViewData["Title"] = "Detale";
+}
+
+<h1>Detale</h1>
+
+<div>
+    <h4>wydarzenia</h4>
+    <hr />
+    <dl class="row">
+        @if (!string.IsNullOrEmpty(Model.Obrazek))
+        {
+            <dt class="col-sm-2">
+            <img src="@Model.Obrazek" alt="Event Image" class="img-circle" />
+            </dt>
+        }
+        else
+        {
+            <dt class="col-sm-2">
+            <span>No Image</span>
+            </dt>
+        }
+        <dd></dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Tytul)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Tytul)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Opis)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Opis)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Data)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Data)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Typ)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Typ)
+        </dd>
+        <dt class = "col-sm-2">
+            Tworca
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.User.UserName)
+        </dd>
+    </dl>
+</div>
+<div>
+    @if (Model.tworca_id == User.FindFirstValue(ClaimTypes.NameIdentifier) || User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model?.Id">Edycja</a>
+        <a>|</a>
+    }
+    <a asp-action="Index">wróć do listy</a>
+</div>

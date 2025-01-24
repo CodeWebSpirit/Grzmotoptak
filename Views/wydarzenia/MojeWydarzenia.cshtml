@@ -1,0 +1,145 @@
+﻿@using System.Security.Claims
+@model IEnumerable<Grzmotoptak.Models.Zapisy>
+
+@{
+    ViewData["Title"] = "Moje zapisy";
+}
+
+<h2>Moje zapisy na wydarzenia</h2>
+
+@if (!Model.Any())
+{
+    <p>Nie zapisałeś się na żadne wydarzenie.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Tytuł</th>
+                <th>Opis</th>
+                <th>Data</th>
+                <th>Typ</th>
+                <th>Twórca</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var przypisanie in Model)
+            {
+                <tr>
+                    <td>
+                        @if (przypisanie.Event != null && !string.IsNullOrEmpty(przypisanie.Event.Obrazek))
+                        {
+                            <img src="@przypisanie.Event.Obrazek" alt="Event Image" class="img-circle" />
+                        }
+                        else
+                        {
+                            <span>No Image</span>
+                        }
+                    </td>
+                    <td>
+                        @if (przypisanie.Event != null)
+                        {
+                            <a asp-action="Details" asp-route-id="@przypisanie.Event.Id">@przypisanie.Event.Tytul</a>
+                        }
+                        else
+                        {
+                            <span>Brak wydarzenia</span>
+                        }
+                        </td>
+                    <td>
+                        @if (przypisanie.Event != null)
+                        {
+                            @przypisanie.Event.Data.ToString("dd-MM-yyyy")
+                        }
+                        else
+                        {
+                            <span>Brak daty</span>
+                        }
+                        </td>
+                    <td>
+                        @if (przypisanie.Event != null)
+                        {
+                            @przypisanie.Event.Opis
+                        }
+                        else
+                        {
+                            <span>Brak opisu</span>
+                        }
+                        </td>
+                    <td>
+                        @if (przypisanie.Event != null)
+                        {
+                            @przypisanie.Event.Typ
+                        }
+                        else
+                        {
+                                <span>Brak Typy</span>
+                        }
+                        </td>
+                    <td>
+                        @if (przypisanie.Event.User != null)
+                        {
+                            @przypisanie.Event.User.UserName
+                        }
+                        else
+                        {
+                            <span>Brak twórcy</span>
+                        }
+                        </td>
+                    <td>
+                        @if (przypisanie.Event != null && przypisanie.Event.tworca_id == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        {
+                            <form asp-action="Delete" method="post">
+                                <input type="hidden" name="id" value="@przypisanie.Event.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Usuń wydarzenie</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <!-- Formularz wypisania się z wydarzenia -->
+                            <form asp-action="Wypisz" method="post">
+                                <input type="hidden" name="eventId" value="@przypisanie.Event.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">Wypisz się</button>
+                            </form>
+                        }
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<h2>Wydarzenia utworzone przeze mnie</h2>
+@if (ViewData["CreatedEvents"] is IEnumerable<dynamic> createdEvents && createdEvents.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tytuł</th>
+                <th>Data</th>
+                <th>Opis</th>
+                <th>Typ</th>
+                <th>Liczba uczestników</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var wydarzenie in createdEvents)
+            {
+                <tr>
+                    <td>@wydarzenie.Tytul</td>
+                    <td>@wydarzenie.Data.ToString("dd-MM-yyyy")</td>
+                    <td>@wydarzenie.Opis</td>
+                    <td>@wydarzenie.Typ</td>
+                    <td>@wydarzenie.ParticipantCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Nie stworzyłeś jeszcze żadnego wydarzenia.</p>
+}

@@ -1,0 +1,43 @@
+﻿@model List<wydarzenia>
+
+<h1>Lista wydarzeń</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Nazwa</th>
+            <th>Rodzaj</th>
+            <th>Data</th>
+            <th>Opis</th>
+            <th>Twórca</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.Obrazek))
+                    {
+                        <img src="@item.Obrazek" alt="Event Image" class="img-circle" />
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
+                </td>
+                <td>@item.Tytul</td>
+                <td>@item.Typ</td>
+                <td>@item.Data.ToString("yyyy-MM-dd")</td>
+                <td>@item.Opis</td>
+                <td>@item.User.UserName</td>
+                <td>
+                    <a class="btn btn-info" asp-controller="wydarzenia" asp-action="Edit" asp-route-id="@item.Id">Edytuj</a>
+                    <a class="btn btn-danger" asp-controller="wydarzenia" asp-action="Delete" asp-route-id="@item.Id">Usuń</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

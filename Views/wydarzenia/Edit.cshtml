@@ -1,0 +1,76 @@
+﻿@model Grzmotoptak.Models.wydarzenia
+
+@{
+    ViewData["Title"] = "Edycja";
+}
+
+<h1>Edycja</h1>
+
+<h4>wydarzenia</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Obrazek" class="control-label"></label>
+                <input type="file" asp-for="Obrazek" class="form-control" />
+                <span asp-validation-for="Obrazek" class="text-danger"></span>
+            </div>
+
+            @if (Model != null && !string.IsNullOrEmpty(Model.Obrazek))
+            {
+                <div>
+                    <img class="img-circle" src="@Model.Obrazek" alt="Event Image" style="max-width:200px;" />
+                </div>
+            }
+            else
+            {
+                <div>
+                    <span>Brak obrazka</span>
+                </div>
+            }
+
+            <div class="form-group">
+                <label asp-for="Tytul" class="control-label"></label>
+                <input asp-for="Tytul" class="form-control" />
+                <span asp-validation-for="Tytul" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Opis" class="control-label"></label>
+                <input asp-for="Opis" class="form-control" />
+                <span asp-validation-for="Opis" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Data" class="control-label"></label>
+                <input asp-for="Data" class="form-control" />
+                <span asp-validation-for="Data" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Typ" class="control-label"></label>
+                <select asp-for="Typ" class="form-control">
+                    <option value="">Wybierz typ</option>
+                    @foreach (var typ in ViewBag.TypyWydarzen as List<string>)
+                    {
+                        <option value="@typ @(typ == Model.Typ ? "selected" : "")">@typ</option>
+                    }
+                </select>
+                <span asp-validation-for="Typ" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Zapisz" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">wróć do listy</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

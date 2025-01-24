@@ -1,0 +1,62 @@
+﻿@model Grzmotoptak.Models.wydarzenia
+
+@{
+    ViewData["Title"] = "Usuwanie wydarzenia";
+}
+
+<h1>Usuwanie wydarzenia</h1>
+
+<h3>Czy na pewno chcesz usunąc to wydarzenie?</h3>
+<div>
+
+    <dl class="row">
+        @if (!string.IsNullOrEmpty(Model.Obrazek))
+        {   <dt class = "col-sm-10">
+                <img src="@Model.Obrazek" alt="Event Image" class="img-circle" />
+            </dt>
+        }
+        else
+        {
+            <dt class = "col-sm-10">
+            <span>No Image</span> 
+            </dt>
+        }
+        <dd></dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Tytul)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Tytul)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Opis)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Opis)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Data)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Data)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Typ)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Typ)
+        </dd>
+        <dt class = "col-sm-2">
+            Tworca
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.User.UserName)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Usuń" class="btn btn-danger" /> |
+        <a asp-action="Index">Wróć do listy</a>
+    </form>
+</div>

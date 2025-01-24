@@ -1,0 +1,73 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model List<(IdentityUser User, IList<string> Roles)>
+
+<h1>Zarządzanie użytkownikami</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Rola</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var użytkownicy in Model)
+        {
+            <tr>
+                <td>@użytkownicy.User.Email</td>
+                <td>@string.Join(", ", użytkownicy.Roles)</td>
+                <td>
+                    @if (użytkownicy.User.Email != "admin@example.com")
+                    {
+                        <form method="post" asp-action="ChangeRole">
+                            <input type="hidden" name="userId" value="@użytkownicy.User.Id" />
+                            <select name="role" class="form-select">
+                                <option value="User">User</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary">Zmień rolę</button>
+                        </form>
+                    }
+                </td>
+                <td>
+                    @if (użytkownicy.User.Email != "admin@example.com")
+                    {
+                        <form asp-controller="Admin" asp-action="DeleteUser" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@użytkownicy.User.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
+                        </form>
+                    }</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Dodaj użytkownika</h2>
+<form method="post" asp-action="CreateUser">
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required />
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Hasło</label>
+        <input type="password" class="form-control" id="password" name="password" minlength="8" required />
+        <div class="form-text" id="passwordCriteria">
+            Hasło musi spełniać następujące kryteria:
+            <ul>
+                <li id="lengthCriteria" class="text-danger">Minimum 8 znaków</li>
+                <li id="uppercaseCriteria" class="text-danger">Co najmniej jedna wielka litera</li>
+                <li id="numberCriteria" class="text-danger">Co najmniej jedna cyfra</li>
+                <li id="specialCharacterCriteria" class="text-danger">Co najmniej jeden znak specjalny (@@, #, $, itp.)</li>
+            </ul>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="role" class="form-label">Rola</label>
+        <select name="role" id="role" class="form-select">
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Utwórz użytkownika</button>
+</form>

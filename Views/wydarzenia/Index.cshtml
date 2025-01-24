@@ -1,0 +1,119 @@
+﻿@using System.Security.Claims
+@model IEnumerable<Grzmotoptak.Models.wydarzenia>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@{
+    ViewData["Title"] = "Wydarzenia";
+}
+
+<h1>Wydarzenia</h1>
+
+<p>
+    <a asp-action="Create">stwórz nowe wydarzenie</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tytul)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Opis)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Data)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Typ)
+            </th>
+            <th>
+                Tworca
+            </th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+            <tr>                       
+                <td>
+                    @if (!string.IsNullOrEmpty(item.Obrazek))
+                    {
+                        <img src="@item.Obrazek" alt="Event Image" class="img-circle"  />
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Tytul)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Opis)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Data)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Typ)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.User.UserName)
+                </td>
+                <td>
+                    @if (item.tworca_id == User.FindFirstValue(ClaimTypes.NameIdentifier) || User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edycja</a>
+                    }
+                    |
+                    <a asp-action="Details" asp-route-id="@item.Id">Detale</a> |
+                    @if (item.tworca_id == User.FindFirstValue(ClaimTypes.NameIdentifier) || User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Id">Usuń</a>
+                    }
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var przypisanewydarzeniaIds = ViewData["przypisanewydarzeniaIds"] as List<int>;
+                        bool isCreator = item.tworca_id == User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                        if (isCreator)
+                        {
+                            <button class="btn btn-secondary btn-sm" disabled>Twórca wydarzenia</button>
+                        }
+                        else if (przypisanewydarzeniaIds != null && przypisanewydarzeniaIds.Contains(item.Id))
+                        {
+                            <button class="btn btn-secondary btn-sm" disabled>Zapisano</button>
+                        }
+                        else
+                        {
+                            <button id="przypisz-btn-@item.Id"
+                                    class="btn btn-primary btn-sm"
+                                    onclick="przypisz(@item.Id, this)">
+                                Zapisz się
+                            </button>
+                        }
+                    }
+
+                    <script>
+                            function przypisz(eventId, button) {
+                                $.ajax({
+                                    url: '@Url.Action("Przypisz", "wydarzenia")',
+                                    type: 'POST',
+                                    data: { eventId: eventId },
+                                    success: function () {
+                                        $(button).prop('disabled', true).text('Zapisano').addClass('btn-secondary').removeClass('btn-primary');
+                                    },
+                                    error: function () {
+                                        alert('Wystąpił błąd podczas zapisywania na wydarzenie.');
+                                    }
+                                });
+                            }
+                    </script>
+
+
+                </td>
+        </tr>
+}
+    </tbody>
+</table>

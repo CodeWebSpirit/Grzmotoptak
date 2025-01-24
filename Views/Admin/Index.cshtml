@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Panel administratora";
+}
+
+<h1>Panel Administratora</h1>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Zarządzanie użytkownikami</h4>
+                </div>
+                <div class="card-body">
+                    <p>Możesz przeglądać listę użytkowników, zmieniać ich role oraz dodawać nowych użytkowników i administratorów.</p>
+                    <a class="btn btn-primary" asp-controller="Admin" asp-action="Użytkownicy">Zarządzaj użytkownikami</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Podgląd wydarzeń</h4>
+                </div>
+                <div class="card-body">
+                    <p>Możesz przeglądać listę wszystkich wydarzeń oraz nimi zarządzać (edytować lub usuwać).</p>
+                    <a class="btn btn-primary" asp-controller="Admin" asp-action="Events">Przeglądaj wydarzenia</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

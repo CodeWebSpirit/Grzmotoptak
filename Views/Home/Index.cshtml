@@ -1,0 +1,177 @@
+﻿@{
+    ViewData["Title"] = "Grzmotoptak - Kółko i Krzyżyk";
+}
+
+<div class="container">
+    <!-- Sekcja komunikatu powitalnego -->
+    <div id="welcomeMessage">
+        <h1>Witaj na stronie Grzmotoptak!</h1>
+        <p>
+            Tutaj możesz zadeklarować organizację wydarzenia, przeglądać wydarzenia stworzone przez innych użytkowników
+            oraz deklarować swój udział w nich. A jeśli ci się nudzi, klikając przycisk
+            <strong>Zagraj</strong>, możesz zagrać w kółko i krzyżyk.
+        </p>
+        <button id="playButton" class="btn btn-primary">Zagraj</button>
+    </div>
+
+    <!-- Plansza do gry w kółko i krzyżyk -->
+    <div id="gameContainer" style="display:none;">
+        <div id="gameBoard" class="board">
+            <div class="row">
+                <button class="cell" data-index="0"></button>
+                <button class="cell" data-index="1"></button>
+                <button class="cell" data-index="2"></button>
+            </div>
+            <div class="row">
+                <button class="cell" data-index="3"></button>
+                <button class="cell" data-index="4"></button>
+                <button class="cell" data-index="5"></button>
+            </div>
+            <div class="row">
+                <button class="cell" data-index="6"></button>
+                <button class="cell" data-index="7"></button>
+                <button class="cell" data-index="8"></button>
+            </div>
+        </div>
+
+        <div id="message"></div>
+        <button id="resetButton" class="btn btn-primary" style="display:none;">Zresetuj</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pobieranie referencji do elementów
+            const playButton = document.getElementById('playButton');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const gameContainer = document.getElementById('gameContainer');
+            const gameBoard = document.getElementById('gameBoard');
+            const cells = document.querySelectorAll('.cell');
+            const messageDiv = document.getElementById('message');
+            const resetButton = document.getElementById('resetButton');
+            const board = Array(9).fill(null);
+            let currentPlayer = 'X';
+
+            // Funkcja uruchamiająca grę
+            playButton.addEventListener('click', () => {
+                welcomeMessage.style.display = 'none';
+                gameContainer.style.display = 'block';
+            });
+
+            // Funkcja sprawdzająca zwycięzcę
+            function checkWinner() {
+                const winningCombinations = [
+                    [0, 1, 2],
+                    [3, 4, 5],
+                    [6, 7, 8],
+                    [0, 3, 6],
+                    [1, 4, 7],
+                    [2, 5, 8],
+                    [0, 4, 8],
+                    [2, 4, 6]
+                ];
+
+                for (const [a, b, c] of winningCombinations) {
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                        return board[a];
+                    }
+                }
+
+                return board.every(cell => cell !== null) ? 'draw' : null;
+            }
+
+            // Funkcja obsługująca kliknięcia w komórki
+            function handleCellClick(event) {
+                const cell = event.target;
+                const index = parseInt(cell.getAttribute('data-index'));
+
+                if (board[index] !== null || messageDiv.textContent) return;
+
+                board[index] = currentPlayer;
+                cell.textContent = currentPlayer;
+
+                const winner = checkWinner();
+
+                if (winner) {
+                    if (winner === 'draw') {
+                        messageDiv.textContent = "Jest remis!";
+                    } else {
+                        messageDiv.textContent = `${winner} Wygrywają!`;
+                    }
+                    resetButton.style.display = 'inline-block';
+                } else {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                }
+            }
+
+            // Funkcja resetująca grę
+            function resetGame() {
+                board.fill(null);
+                cells.forEach(cell => cell.textContent = '');
+                messageDiv.textContent = '';
+                resetButton.style.display = 'none';
+                currentPlayer = 'X';
+            }
+
+            // Dodanie obsługi kliknięć do komórek planszy
+            cells.forEach(cell => {
+                cell.addEventListener('click', handleCellClick);
+            });
+
+            // Obsługa przycisku resetowania gry
+            resetButton.addEventListener('click', resetGame);
+        });
+    </script>
+}
+
+<style>
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+        position: relative;
+    }
+
+    .board {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 20px;
+    }
+
+    .row {
+        display: flex;
+        gap: 5px;
+    }
+
+    .cell {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        text-align: center;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+        .cell:hover {
+            background-color: #e0e0e0;
+        }
+
+        .cell:focus {
+            outline: none;
+        }
+
+    #message {
+        margin-top: 20px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    #resetButton {
+        margin-top: 20px;
+    }
+</style>
