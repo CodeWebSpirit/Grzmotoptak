@@ -71,3 +71,14 @@
     </div>
     <button type="submit" class="btn btn-success">Utwórz użytkownika</button>
 </form>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}

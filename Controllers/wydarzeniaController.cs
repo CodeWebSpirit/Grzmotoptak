@@ -22,25 +22,19 @@ namespace Grzmotoptak.Controllers
             _context = context;
         }
 
-        // Sprawdza, czy wydarzenie o podanym ID istnieje w bazie danych
         private bool wydarzeniaExists(int id)
         {
-            // Metoda Any() sprawdza, czy istnieje jakikolwiek rekord spełniający warunek
             return _context.events.Any(e => e.Id == id);
         }
 
-        // GET: wydarzenia - Wyświetla listę wszystkich wydarzeń
         public async Task<IActionResult> Index()
         {
-            // Pobiera identyfikator aktualnie zalogowanego użytkownika (jeśli jest zalogowany)
             var userId = User.Identity.IsAuthenticated ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
 
-            // Pobiera listę wydarzeń i dołącza informacje o ich twórcach
             var wydarzenia = await _context.events
-                .Include(e => e.User) // Dołączenie relacji z tabelą użytkowników
+                .Include(e => e.User) 
                 .ToListAsync();
 
-            // Pobiera identyfikatory wydarzeń, na które użytkownik jest zapisany
             var przypisanewydarzeniaIds = userId != null
                 ? await _context.Enrollments
                     .Where(e => e.UserId == userId)
@@ -48,13 +42,11 @@ namespace Grzmotoptak.Controllers
                     .ToListAsync()
                 : new List<int>();
 
-            // Przekazuje identyfikatory zapisanych wydarzeń do widoku
             ViewData["przypisanewydarzeniaIds"] = przypisanewydarzeniaIds;
 
             return View(wydarzenia);
         }
 
-        // GET: wydarzenia/Details/5 - Wyświetla szczegóły wybranego wydarzenia
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -62,9 +54,8 @@ namespace Grzmotoptak.Controllers
                 return NotFound();
             }
 
-            // Pobiera szczegóły wydarzenia na podstawie ID
             var wydarzenia = await _context.events
-                .Include(e => e.User) // Dołączenie relacji z tabelą użytkowników
+                .Include(e => e.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (wydarzenia == null)
@@ -76,7 +67,6 @@ namespace Grzmotoptak.Controllers
         }
 
         [Authorize]
-        // GET: wydarzenia/Create - Formularz tworzenia nowego wydarzenia
         public IActionResult Create()
         {
             ViewBag.TypyWydarzen = new List<string> { "Koncert", "Dyskoteka", "Wystawa", "Pokaz", "Integracja" };
@@ -88,7 +78,6 @@ namespace Grzmotoptak.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Tytul,Opis,Data,Typ,Obrazek")] wydarzenia wydarzenia, IFormFile obrazek)
         {
-            // Przypisanie identyfikatora twórcy do wydarzenia
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             wydarzenia.tworca_id = userId;
 
@@ -105,11 +94,9 @@ namespace Grzmotoptak.Controllers
                     wydarzenia.Obrazek = "/images/" + fileName;
                 }
 
-                // Dodanie wydarzenia do bazy
                 _context.Add(wydarzenia);
                 await _context.SaveChangesAsync();
 
-                // Automatyczne przypisanie twórcy jako uczestnika
                 var zapis = new Zapisy(userId, wydarzenia.Id);
                 _context.Enrollments.Add(zapis);
                 await _context.SaveChangesAsync();
@@ -134,7 +121,6 @@ namespace Grzmotoptak.Controllers
                 return NotFound();
             }
 
-            // Sprawdź uprawnienia użytkownika
             if (wydarzenia.tworca_id != User.FindFirstValue(ClaimTypes.NameIdentifier) && !User.IsInRole("Admin"))
             {
                 return Forbid();
@@ -159,7 +145,6 @@ namespace Grzmotoptak.Controllers
                 return NotFound();
             }
 
-            // Sprawdź uprawnienia użytkownika
             if (existingEvent.tworca_id != User.FindFirstValue(ClaimTypes.NameIdentifier) && !User.IsInRole("Admin"))
             {
                 return Forbid();
@@ -209,7 +194,6 @@ namespace Grzmotoptak.Controllers
 
 
         [Authorize]
-        // GET: wydarzenia/Delete/5 - Formularz potwierdzenia usunięcia wydarzenia
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -217,9 +201,8 @@ namespace Grzmotoptak.Controllers
                 return NotFound();
             }
 
-            // Pobiera dane wydarzenia do usunięcia
             var wydarzenia = await _context.events
-                .Include(e => e.User) // Dołączenie relacji z tabelą użytkowników
+                .Include(e => e.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (wydarzenia == null)
             {
@@ -230,12 +213,10 @@ namespace Grzmotoptak.Controllers
         }
 
         [Authorize]
-        // POST: wydarzenia/Delete/5 - Usuwa wybrane wydarzenie
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            // Pobiera wydarzenie na podstawie ID
             var wydarzenia = await _context.events.FindAsync(id);
 
             if (wydarzenia == null)
@@ -243,14 +224,13 @@ namespace Grzmotoptak.Controllers
                 return NotFound();
             }
 
-            // Sprawdza uprawnienia użytkownika
             if (wydarzenia.tworca_id != User.FindFirstValue(ClaimTypes.NameIdentifier) && !User.IsInRole("Admin"))
             {
-                return Forbid(); // Brak dostępu
+                return Forbid();
             }
 
-            _context.events.Remove(wydarzenia); // Usunięcie wydarzenia z bazy danych
-            await _context.SaveChangesAsync(); // Zapisanie zmian
+            _context.events.Remove(wydarzenia);
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -259,14 +239,12 @@ namespace Grzmotoptak.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Pobierz zapisy użytkownika
             var zapisy = _context.Enrollments
         .Include(z => z.Event)
-        .ThenInclude(e => e.User) // Ładujemy dane twórcy wydarzenia
+        .ThenInclude(e => e.User)
         .Where(z => z.UserId == userId)
         .ToList();
 
-            // Pobierz wydarzenia stworzone przez użytkownika
             var createdEvents = await _context.events
                 .Where(e => e.tworca_id == userId)
                 .Select(e => new
@@ -276,7 +254,7 @@ namespace Grzmotoptak.Controllers
                     e.Data,
                     e.Opis,
                     e.Typ,
-                    ParticipantCount = _context.Enrollments.Count(z => z.EventId == e.Id) // Liczba uczestników
+                    ParticipantCount = _context.Enrollments.Count(z => z.EventId == e.Id) 
                 })
                 .ToListAsync();
 
